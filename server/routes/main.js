@@ -47,10 +47,39 @@ router.get("/post/:id", async (req, res) => {
       description: "A simple blog made using nodejs express and mongodb",
     };
 
-    res.render("index", {
+    res.render("post", {
       locals,
       data,
     });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * POST
+ * Post-search
+ */
+router.post("/search", async (req, res) => {
+  try {
+    const locals = {
+      title: "nodejs",
+      description: "A simple blog made using nodejs express and mongodb",
+    };
+    let searchTerm = req.body.searchTerm;
+    const searchNoSpecial = searchTerm.replace(/[^a-zA-Z0-9]/g, "");
+    const data = await Post.find({
+      $or: [
+        {
+          title: { $regex: new RegExp(searchNoSpecial, "i") },
+          body: { $regex: new RegExp(searchNoSpecial, "i") },
+        },
+      ],
+    });
+
+    console.log(searchTerm);
+
+    res.render("search", { locals, data });
   } catch (error) {
     console.log(error);
   }

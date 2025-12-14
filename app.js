@@ -20,6 +20,7 @@ app.set("view engine", "ejs");
 
 //
 app.use("/", require("./server/routes/main"));
+app.use("/", require("./server/routes/admin"));
 
 const port = 5000 || process.env.PORT;
 

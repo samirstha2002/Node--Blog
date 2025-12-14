@@ -2,8 +2,10 @@ const dotenv = require("dotenv").config();
 
 const express = require("express");
 const expressLayout = require("express-ejs-layouts");
+const dbconnect = require("./server/config/db");
 const app = express();
 
+dbconnect();
 //middleware
 app.use(express.static("public"));
 
@@ -21,4 +23,3 @@ const port = 5000 || process.env.PORT;
 app.listen(port, () => {
   console.log(`The server is running on port no:${port}`);
 });
-

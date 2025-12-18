@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 const Post = require("./../models/post");
 const User = require("./../models/user");
 
-const adminLayout = "../views/layouts/admin";
+const adminLayout = "layouts/admin";
+
 const router = express.Router();
 
 // auth middlware to protect route
@@ -37,7 +38,7 @@ router.get("/admin", async (req, res) => {
 
     res.render("admin/index", {
       locals,
-      layouts: "adminLayout",
+      layout: adminLayout,
     });
   } catch (error) {
     console.log(error);
@@ -76,7 +77,7 @@ router.get("/dashboard", authmiddleware, async (req, res) => {
     };
 
     const data = await Post.find();
-    res.render("admin/dashboard", { layouts: "adminLayout", locals, data });
+    res.render("admin/dashboard", { layout: adminLayout, locals, data });
   } catch (error) {
     res.send(error);
   }
@@ -96,7 +97,7 @@ router.get("/add-post", authmiddleware, async (req, res) => {
     const data = await Post.find();
     res.render("admin/add-post", {
       locals,
-      layouts: "adminLayout",
+      layout: adminLayout,
     });
   } catch (error) {
     console.log(error);
@@ -122,6 +123,43 @@ router.post("/add-post", authmiddleware, async (req, res) => {
 });
 
 /**
+ * get
+ * admin-  edit-post
+ */
+
+router.get("/edit-post/:id", authmiddleware, async (req, res) => {
+  try {
+    const locals = {
+      title: "Edit post",
+      description: "Simple Blog created with NodeJs, Express & mongoDb",
+    };
+
+    const data = await Post.findOne({ _id: req.params.id });
+    res.render("admin/edit-post", { locals, data, layout: adminLayout });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * put
+ * admin-  edit-post
+ */
+
+router.put("/edit-post/:id", authmiddleware, async (req, res) => {
+  try {
+    await Post.findByIdAndUpdate(req.params.id, {
+      title: req.body.title,
+      body: req.body.body,
+      updatedAt: Date.now(),
+    });
+    res.redirect(`/edit-post/${req.params.id}`);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
  * Post
  * admin-  register
  */
@@ -140,10 +178,35 @@ router.post("/register", async (req, res) => {
       res.status(500).json({ message: "internal server error" });
     }
     res.render("admin/index", {
-      layouts: "adminLayout",
+      layout: adminLayout,
     });
   } catch (error) {
     console.log(error);
   }
 });
+
+/**
+ * put
+ * admin-  edit-post
+ */
+
+router.delete("/delete-post/:id", authmiddleware, async (req, res) => {
+  try {
+    await Post.deleteOne({ _id: req.params.id });
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * get
+ * admin-  delete-post
+ */
+
+router.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/");
+});
+
 module.exports = router;
